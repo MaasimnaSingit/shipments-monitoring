@@ -25,7 +25,6 @@ export default function Dashboard() {
   const [uploadedData, setUploadedData] = useState<DailyRecord[]>([]);
   const [activeTab, setActiveTab] = useState<string>('FLORIDA');
   const [searchQuery, setSearchQuery] = useState('');
-  const [isUploading, setIsUploading] = useState(false);
   
   // State for branch dropdown
   const [isBranchDropdownOpen, setIsBranchDropdownOpen] = useState(false);
@@ -33,10 +32,8 @@ export default function Dashboard() {
   // State for date range selector
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   
   const [fileName, setFileName] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // VIP Management State
   const [isManageMode, setIsManageMode] = useState(false);
@@ -148,7 +145,6 @@ export default function Dashboard() {
 
   // Split data into clear sections
   const walkinRow = matrixData.find(r => r.code === 'WALKIN');
-  const vipSummaryRow = matrixData.find(r => r.code === 'VIP');
   const vipIndividualRows = matrixData.filter(r => r.code !== 'WALKIN' && r.code !== 'VIP');
 
   // Stats
@@ -229,41 +225,10 @@ export default function Dashboard() {
     }
   };
   
-  const goToCurrentMonth = () => {
-    const today = new Date();
-    setSelectedMonth(today.getMonth());
-    setSelectedYear(today.getFullYear());
-  };
-  
   const isCurrentMonth = selectedMonth === new Date().getMonth() && selectedYear === new Date().getFullYear();
   const monthName = new Date(selectedYear, selectedMonth).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
-  const handleFileUpload = async (file: File) => {
-    setIsUploading(true);
-    setFileName(file.name);
-    
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-      const result = await res.json();
-      if (result.success) {
-        setUploadedData(result.fullData);
-      } else {
-        alert('Upload failed: ' + result.error);
-        setFileName(null);
-      }
-    } catch (err) {
-      alert('Error uploading file');
-      setFileName(null);
-    } finally {
-      setIsUploading(false);
-    }
-  };
+    // Data loading is handled via useEffect
 
   const handleSaveVIP = async (action: 'ADD' | 'EDIT' | 'DELETE') => {
     const payload = {
@@ -486,9 +451,9 @@ export default function Dashboard() {
                <div className="flex items-center gap-2">
                   {/* Date Switcher */}
                   <div className="flex items-center bg-gray-50 border border-gray-200 rounded-lg h-10 px-1">
-                     <button onClick={goToPreviousMonth} className="px-2 hover:bg-white hover:text-red-600 rounded transition-colors text-gray-400"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7"></path></svg></button>
+                     <button onClick={goToPreviousMonth} className="px-2 hover:bg-white hover:text-red-600 rounded transition-colors text-gray-400" title="Previous Month"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7"></path></svg></button>
                      <span className="px-3 text-xs font-black text-gray-700 uppercase">{monthName}</span>
-                     <button onClick={goToNextMonth} disabled={isCurrentMonth} className="px-2 hover:bg-white hover:text-red-600 rounded transition-colors text-gray-400 disabled:opacity-20"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7"></path></svg></button>
+                     <button onClick={goToNextMonth} disabled={isCurrentMonth} className="px-2 hover:bg-white hover:text-red-600 rounded transition-colors text-gray-400 disabled:opacity-20" title="Next Month"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7"></path></svg></button>
                   </div>
 
                   <button 
@@ -501,7 +466,7 @@ export default function Dashboard() {
 
                   <button 
                     onClick={() => {
-                        const csv = [['Date', 'Branch', 'VIP Code', 'VIP Name', 'Count'].join(','), ...uploadedData.map(r => [r.date, r.branch, r.vip_code || r.vipCode, r.vip_name || r.vipName, r.count].join(','))].join('\n');
+                        const csv = [['Date', 'Branch', 'VIP Code', 'VIP Name', 'Count'].join(','), ...uploadedData.map(r => [r.date, r.branch, r.vip_code, r.vip_name, r.count].join(','))].join('\n');
                         const blob = new Blob([csv], { type: 'text/csv' });
                         const url = URL.createObjectURL(blob);
                         const a = document.createElement('a'); a.href = url; a.download = `parcels-${activeTab}.csv`; a.click();
@@ -843,6 +808,7 @@ export default function Dashboard() {
                     setQuickEntryWalkin('');
                   }}
                   className="text-gray-400 hover:text-gray-600"
+                  title="Close Modal"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
