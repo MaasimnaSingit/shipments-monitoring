@@ -1,26 +1,184 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #fafbfc;
+  --foreground: #1f2937;
 }
 
 body {
-  background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--background);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Header */
+.app-header {
+  @apply bg-white border-b border-gray-200 shadow-sm;
+}
+
+/* Stat Pills */
+.stat-pill {
+  @apply px-4 py-2.5 bg-white border border-gray-200 rounded-lg shadow-sm;
+}
+
+.stat-label {
+  @apply text-xs text-gray-600 font-medium;
+}
+
+.stat-value {
+  @apply text-xl font-semibold text-gray-900 mt-1;
+}
+
+/* Tab Buttons */
+.tab-button {
+  @apply px-5 py-2.5 text-sm font-medium rounded-lg;
+  @apply text-gray-700 bg-white border border-gray-300;
+  @apply hover:border-gray-400 hover:bg-gray-50;
+  @apply transition-all duration-150;
+}
+
+.tab-active {
+  @apply bg-blue-600 text-white border-blue-600;
+  @apply hover:bg-blue-700 hover:border-blue-700;
+  @apply shadow-sm;
+}
+
+/* Search Input */
+.search-input {
+  @apply w-full px-4 py-2.5 pl-11 rounded-lg;
+  @apply bg-white border border-gray-300;
+  @apply text-gray-900 placeholder-gray-500;
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+  @apply shadow-sm;
+}
+
+/* Table Container */
+.table-container {
+  @apply bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden;
+}
+
+/* Data Table */
+.data-table {
+  @apply w-full text-sm;
+}
+
+.data-table thead {
+  @apply bg-gray-50 border-b-2 border-gray-200;
+}
+
+.data-table th {
+  @apply px-6 py-3.5 text-left text-xs font-bold text-gray-700 uppercase tracking-wide;
+  @apply border-r border-gray-200 last:border-r-0;
+}
+
+.data-table tbody {
+  @apply divide-y divide-gray-200 bg-white;
+}
+
+.data-row {
+  @apply hover:bg-blue-50/50 transition-colors duration-100;
+}
+
+.special-row-walkin {
+  @apply bg-amber-50/80 hover:bg-amber-100/60;
+}
+
+.special-row-vip {
+  @apply bg-indigo-50/80 hover:bg-indigo-100/60;
+}
+
+.data-table td {
+  @apply px-6 py-4 border-r border-gray-100 last:border-r-0;
+}
+
+/* Code Badges */
+.code-badge {
+  @apply inline-block px-3 py-1.5 rounded-md text-xs font-semibold whitespace-nowrap;
+  @apply border;
+}
+
+.code-walkin {
+  @apply bg-amber-100 text-amber-900 border-amber-300;
+}
+
+.code-vip {
+  @apply bg-indigo-100 text-indigo-900 border-indigo-300;
+}
+
+.code-regular {
+  @apply bg-gray-100 text-gray-700 border-gray-300 font-mono;
+}
+
+/* Total Badge */
+.total-badge {
+  @apply inline-flex items-center justify-center px-3 py-1.5 rounded-lg;
+  @apply font-bold text-sm min-w-[3.5rem];
+}
+
+.total-active {
+  @apply bg-emerald-100 text-emerald-900 border border-emerald-300;
+}
+
+.total-zero {
+  @apply text-gray-400 font-normal;
+}
+
+/* Count Cells */
+.count-cell {
+  @apply inline-block font-mono text-sm;
+}
+
+.count-active {
+  @apply text-blue-700 font-semibold;
+}
+
+.count-zero {
+  @apply text-gray-400;
+}
+
+/* Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  height: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Selection */
+::selection {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+/* Focus */
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Premium Animations */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
 }

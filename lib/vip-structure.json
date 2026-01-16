@@ -1,0 +1,474 @@
+{
+  "branches": [
+    {
+      "name": "FLORIDA",
+      "vips": [
+        {
+          "code": "WALKIN",
+          "name": "WALKIN"
+        },
+        {
+          "code": "VIP",
+          "name": "VIP"
+        },
+        {
+          "code": "NWL-F3735",
+          "name": "DIVINE JOY PINEDA"
+        },
+        {
+          "code": "NWL-F3811",
+          "name": "LANNIE PARAS"
+        },
+        {
+          "code": "NWL-F3754",
+          "name": "JKIRT"
+        },
+        {
+          "code": "NWL-F3757",
+          "name": "LUCKY PARAS"
+        },
+        {
+          "code": "NWL-F4256",
+          "name": "HERBS OF ASIA"
+        },
+        {
+          "code": "NWL-F4735",
+          "name": "ANNE MALLARI"
+        },
+        {
+          "code": "NWL-F4926",
+          "name": "RUN 4 NUTS"
+        },
+        {
+          "code": "NWL-F4040",
+          "name": "LITTLE HAVEN"
+        },
+        {
+          "code": "NWL-F5005",
+          "name": "ELEGANZA CLASSICO"
+        },
+        {
+          "code": "NWL-F5307",
+          "name": "NICOLE FERNANDEZ"
+        },
+        {
+          "code": "NWL-F5531",
+          "name": "NANCY SEE"
+        },
+        {
+          "code": "NWL-F4951",
+          "name": "ABIGAIL BARTOLO"
+        },
+        {
+          "code": "NWL-F7537",
+          "name": "KATIES ONLINE SHOP"
+        }
+      ]
+    },
+    {
+      "name": "LUBAO",
+      "vips": [
+        {
+          "code": "WALKIN",
+          "name": "WALKIN"
+        },
+        {
+          "code": "VIP",
+          "name": "VIP"
+        },
+        {
+          "code": "NWL-F3867",
+          "name": "SHIRLEY JOSE BANSIL"
+        },
+        {
+          "code": "NWL-F3879",
+          "name": "JM SADDI"
+        },
+        {
+          "code": "NWL-F4451",
+          "name": "KEN LESTRE CARLOS"
+        },
+        {
+          "code": "NWL-F4274",
+          "name": "MARITONI PANGILINAN"
+        },
+        {
+          "code": "NWL-F4825",
+          "name": "SANDRA ZITA"
+        },
+        {
+          "code": "NWL-F4898",
+          "name": "FHERDINAND FLORES"
+        },
+        {
+          "code": "NWL-F5635",
+          "name": "JERRY DECANO"
+        },
+        {
+          "code": "NWL-F2965",
+          "name": "ROMMEL TIMBOL"
+        },
+        {
+          "code": "NWL-F6965",
+          "name": "TRISTAN DAVE SUSI"
+        },
+        {
+          "code": "NWL-F6917",
+          "name": "RICA MONTEMAYOR"
+        },
+        {
+          "code": "N/A",
+          "name": "LUISA POBLETE"
+        },
+        {
+          "code": "N/A",
+          "name": "RK PONIO"
+        }
+      ]
+    },
+    {
+      "name": "STO CRISTO",
+      "vips": [
+        {
+          "code": "WALKIN",
+          "name": "WALKIN"
+        },
+        {
+          "code": "VIP",
+          "name": "VIP"
+        },
+        {
+          "code": "NWL-F3919",
+          "name": "LIGHTING GLOW"
+        },
+        {
+          "code": "NWL-F4535",
+          "name": "GOODZ BAZAAR"
+        },
+        {
+          "code": "NWL-F4759",
+          "name": "GARDEN DEALS ONLINE STORE"
+        },
+        {
+          "code": "NWL-F5876",
+          "name": "THERESA G. GALANG"
+        },
+        {
+          "code": "NWL-F6919",
+          "name": "MADELEINE TAN"
+        },
+        {
+          "code": "NWL-F6967",
+          "name": "JAMES TINIO"
+        },
+        {
+          "code": "NWL-F7091",
+          "name": "CLASSCHIC"
+        },
+        {
+          "code": "NWL-6338",
+          "name": "BEE3"
+        },
+        {
+          "code": "NWL-4768",
+          "name": "EDMER DIZON"
+        },
+        {
+          "code": "NWL-7244",
+          "name": "THE BAG STORE PH"
+        },
+        {
+          "code": "NWL",
+          "name": "TATAYRON TV"
+        },
+        {
+          "code": "NWL-F7379",
+          "name": "MADELYN DAYRIT"
+        },
+        {
+          "code": "N/A",
+          "name": "GLOW WITH FAB"
+        },
+        {
+          "code": "N/A",
+          "name": "MARINA PANLILIO"
+        },
+        {
+          "code": "NWL-F3508",
+          "name": "VAPE N STYLE"
+        },
+        {
+          "code": "NWL-F6646",
+          "name": "KANDILOVE"
+        },
+        {
+          "code": "NWL-F7024",
+          "name": "INKSATIONAL"
+        },
+        {
+          "code": "NWL-F3512",
+          "name": "MVC CALMANTE"
+        },
+        {
+          "code": "NWL-F3201",
+          "name": "AROMA ESSENTIAL"
+        },
+        {
+          "code": "NWL-F4033",
+          "name": "LC COLLECTION"
+        },
+        {
+          "code": "NWL-F4788",
+          "name": "FOR YOU CLOTHING COLLECTION"
+        },
+        {
+          "code": "NWL-F3510",
+          "name": "MARK JAY JIMENEZ"
+        },
+        {
+          "code": "NWL-F6655",
+          "name": "MARYLAINE LIM"
+        },
+        {
+          "code": "NWL-F7005",
+          "name": "RENZ WESTLEY"
+        },
+        {
+          "code": "NWL-F6334",
+          "name": "ROSE MARIE MCRILEY"
+        },
+        {
+          "code": "NWL",
+          "name": "VIP OTHER BRANCH/SHIPMATES"
+        },
+        {
+          "code": "NWL-F3699",
+          "name": "JERRY TAN"
+        },
+        {
+          "code": "NWL-F7135",
+          "name": "KIMVERLY PUZON CREER"
+        },
+        {
+          "code": "NWL-F7683",
+          "name": "STICK IT DECOR"
+        },
+        {
+          "code": "NWL-F3511/NWL-F5416",
+          "name": "JOHN PAUL C. YANGA"
+        },
+        {
+          "code": "NWL-F3513",
+          "name": "JAMAECA C. YANGA"
+        },
+        {
+          "code": "NWL-F4804",
+          "name": "JMC ONLINE SHOP"
+        },
+        {
+          "code": "NWL-F5418",
+          "name": "RAQUEL MANEBOG"
+        },
+        {
+          "code": "NWL-F3505",
+          "name": "GIANELLA B. JUCO"
+        },
+        {
+          "code": "NWL-F5129",
+          "name": "FOXY MAMA"
+        },
+        {
+          "code": "NWL-F4739",
+          "name": "MARIXIE ANN OBSIOMA"
+        },
+        {
+          "code": "NWL-F5489",
+          "name": "GOHAN"
+        },
+        {
+          "code": "NWL-F6066",
+          "name": "AINA LACAP YANGA"
+        },
+        {
+          "code": "NWL-F6159",
+          "name": "AAS SUPREME SOLAR LIGHTS"
+        },
+        {
+          "code": "NWL-F6160",
+          "name": "REGINE LUGTU"
+        },
+        {
+          "code": "NWL-F6837",
+          "name": "TONY"
+        },
+        {
+          "code": "NWL-F6067/NWL-F3697",
+          "name": "RR ECOMS"
+        },
+        {
+          "code": "NWL-F6884",
+          "name": "ANDREA MAMANGUN"
+        },
+        {
+          "code": "NWL-F3700",
+          "name": "MARIGOLD IGNACIO"
+        },
+        {
+          "code": "NWL-F5722",
+          "name": "ANGEL JOYCE ALLANIGUE"
+        },
+        {
+          "code": "NWL-F4198",
+          "name": "PRESCRIPTO"
+        },
+        {
+          "code": "NWL-F3202",
+          "name": "TATTUMUNDO"
+        },
+        {
+          "code": "NWL-F3509",
+          "name": "JERSEY BUCU"
+        },
+        {
+          "code": "NWL-F4027",
+          "name": "MARGARETH JOHNSON"
+        },
+        {
+          "code": "NWL-F2891",
+          "name": "ANDRE DALE D.ABELLO"
+        },
+        {
+          "code": "NWL-F5244",
+          "name": "MARVIN FLORES(ARKON)"
+        },
+        {
+          "code": "NWL-F5323",
+          "name": "CRISTINA G. PALTEP"
+        },
+        {
+          "code": "NWL-F5394",
+          "name": "A.M COLLECTION"
+        },
+        {
+          "code": "NWL-F5217",
+          "name": "KIER DIZON"
+        },
+        {
+          "code": "NWL-F5417",
+          "name": "CLARENCE JOY LAPUZ"
+        },
+        {
+          "code": "NWL-F4717",
+          "name": "VICENTINA TOLEN"
+        },
+        {
+          "code": "NWL-F5411",
+          "name": "KRISTINE CLERE GARINO"
+        },
+        {
+          "code": "NWL-F5701",
+          "name": "JOHN PAUL DOGMOC"
+        },
+        {
+          "code": "NWL-F5303",
+          "name": "AINSLEY LOUISE"
+        },
+        {
+          "code": "NWL-F5722",
+          "name": "ANGEL JOYCE ALLANIGUE"
+        },
+        {
+          "code": "NWL-F5932",
+          "name": "TRINA PANLILIO"
+        }
+      ]
+    },
+    {
+      "name": "MAGALANG",
+      "vips": [
+        {
+          "code": "WALKIN",
+          "name": "WALKIN"
+        },
+        {
+          "code": "VIP",
+          "name": "VIP"
+        },
+        {
+          "code": "NWL-F0067",
+          "name": "ABIGAIL BARTOLO"
+        },
+        {
+          "code": "NWL-F0077",
+          "name": "ABIGAIL BARTOLO"
+        },
+        {
+          "code": "NWL-F2895",
+          "name": "WILLIAM BARTOLO"
+        },
+        {
+          "code": "NWL-F6226",
+          "name": "JACKILOU BONDOC"
+        },
+        {
+          "code": "NWL-F7520",
+          "name": "DIVINEGLOW"
+        }
+      ]
+    },
+    {
+      "name": "PANDAN",
+      "vips": [
+        {
+          "code": "WALKIN",
+          "name": "WALKIN"
+        }
+      ]
+    },
+    {
+      "name": "SAPALIBUTAD",
+      "vips": [
+        {
+          "code": "WALKIN",
+          "name": "WALKIN"
+        }
+      ]
+    },
+    {
+      "name": "PAMPANG",
+      "vips": [
+        {
+          "code": "WALKIN",
+          "name": "WALKIN"
+        }
+      ]
+    },
+    {
+      "name": "SAN JOSE",
+      "vips": [
+        {
+          "code": "WALKIN",
+          "name": "WALKIN"
+        }
+      ]
+    },
+    {
+      "name": "CONCEPCION",
+      "vips": [
+        {
+          "code": "WALKIN",
+          "name": "WALKIN"
+        }
+      ]
+    },
+    {
+      "name": "CITY CENTER",
+      "vips": [
+        {
+          "code": "WALKIN",
+          "name": "WALKIN"
+        }
+      ]
+    }
+  ]
+}
