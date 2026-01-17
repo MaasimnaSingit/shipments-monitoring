@@ -265,8 +265,8 @@ export default function Dashboard() {
     const payload = {
       action,
       branchName: activeTab,
-      vipCode: formVipCode,
-      vipName: formVipName,
+      vipCode: action === 'DELETE' ? selectedVip?.code : formVipCode,
+      vipName: action === 'DELETE' ? selectedVip?.name : formVipName,
       oldVipCode: selectedVip?.code
     };
 
