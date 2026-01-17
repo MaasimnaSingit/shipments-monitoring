@@ -217,33 +217,33 @@ export default function BranchEntryPage() {
 
             <div className="p-6 space-y-6">
               {/* VIP SECTION */}
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="w-1 h-4 bg-red-600 rounded-full"></div>
-                  <h3 className="text-xs font-black text-gray-800 uppercase tracking-widest">VIP Clients</h3>
-                </div>
-                
-                <div className="space-y-3">
-                  {vipClients.length > 0 ? vipClients.map(vip => (
-                    <div key={vip.code} className="group p-3 hover:bg-gray-50 rounded-xl transition-colors border border-transparent hover:border-gray-100 flex items-center justify-between">
-                      <div className="min-w-0 pr-4">
-                        <p className="text-sm font-bold text-gray-700 truncate">{vip.name}</p>
-                        <p className="text-[10px] font-mono font-bold text-gray-400">{vip.code}</p>
+              {vipClients.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-1 h-4 bg-red-600 rounded-full"></div>
+                    <h3 className="text-xs font-black text-gray-800 uppercase tracking-widest">VIP Clients</h3>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    {vipClients.map(vip => (
+                      <div key={vip.code} className="group p-3 hover:bg-gray-50 rounded-xl transition-colors border border-transparent hover:border-gray-100 flex items-center justify-between">
+                        <div className="min-w-0 pr-4">
+                          <p className="text-sm font-bold text-gray-700 truncate">{vip.name}</p>
+                          <p className="text-[10px] font-mono font-bold text-gray-400">{vip.code}</p>
+                        </div>
+                        <input 
+                          type="number"
+                          value={counts[vip.code] || ''}
+                          onChange={e => setCounts(prev => ({ ...prev, [vip.code]: e.target.value }))}
+                          className="w-24 px-3 py-2 bg-gray-50 group-hover:bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-base font-black text-right outline-none transition-all"
+                          placeholder="0"
+                          min="0"
+                        />
                       </div>
-                      <input 
-                        type="number"
-                        value={counts[vip.code] || ''}
-                        onChange={e => setCounts(prev => ({ ...prev, [vip.code]: e.target.value }))}
-                        className="w-24 px-3 py-2 bg-gray-50 group-hover:bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-base font-black text-right outline-none transition-all"
-                        placeholder="0"
-                        min="0"
-                      />
-                    </div>
-                  )) : (
-                    <div className="text-center py-4 text-gray-400 text-sm italic">No VIP clients for this branch</div>
-                  )}
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* WALKIN SECTION */}
               <div className="pt-6 border-t border-gray-100">

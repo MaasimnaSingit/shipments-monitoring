@@ -1072,9 +1072,7 @@ export default function Dashboard() {
               </div>
 
               {/* Keyboard Hint */}
-              <p className="text-xs text-gray-500 mt-3 text-center">
-                💡 Tip: Press <kbd className="px-1.5 py-0.5 bg-white border border-gray-300 rounded text-xs">Enter</kbd> to save quickly
-              </p>
+
             </div>
           </div>
         </div>
