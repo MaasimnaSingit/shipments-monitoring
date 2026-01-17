@@ -1,7 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Bell, X, Check, Info, AlertTriangle, Trash2, MailOpen } from 'lucide-react';
+import clsx from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
 interface VIPClient {
   code: string;
@@ -41,6 +45,9 @@ export default function BranchEntryPage() {
   
   // Notification State
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [toasts, setToasts] = useState<Notification[]>([]);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const notificationRef = useRef<HTMLDivElement>(null);
   
   // Store the actual database branch name (e.g., "STO CRISTO" not "STO-CRISTO")
   const [resolvedBranchName, setResolvedBranchName] = useState<string>('');
@@ -109,6 +116,21 @@ export default function BranchEntryPage() {
     loadMyEntries();
   }, [branchName]);
 
+  const lastKnownIds = useRef<Set<string>>(new Set());
+
+  // Handle click outside notification dropdown
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
+        setIsNotificationOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   // Load notifications for this branch
   useEffect(() => {
     if (!resolvedBranchName) return;
@@ -117,17 +139,28 @@ export default function BranchEntryPage() {
       fetch(`/api/notifications?branch=${encodeURIComponent(resolvedBranchName)}`)
         .then(res => res.json())
         .then(data => {
-          if (data.success && data.notifications?.length > 0) {
-            setNotifications(data.notifications);
+          if (data.success) {
+            const currentNotifs = data.notifications || [];
             
-            // Auto-dismiss ALL notifications after 5 seconds
-            if (data.notifications.length > 0) {
-              setTimeout(() => {
-                setNotifications([]);
-              }, 5000);
+            // Detect NEW notifications for Toasts
+            const newItems = currentNotifs.filter((n: Notification) => !lastKnownIds.current.has(n.id));
+            
+            if (newItems.length > 0) {
+              setToasts(prev => [...prev, ...newItems]);
+              
+              // Schedule auto-dismiss for new items
+              newItems.forEach((n: Notification) => {
+                 setTimeout(() => {
+                   setToasts(prev => prev.filter(t => t.id !== n.id));
+                 }, 5000);
+              });
             }
-          } else {
-             setNotifications([]); // Clear if no active notifications
+
+            // Update interactions state
+            setNotifications(currentNotifs);
+            
+            // Update ref
+            lastKnownIds.current = new Set(currentNotifs.map((n: Notification) => n.id));
           }
         })
         .catch(console.error);
@@ -253,19 +286,92 @@ export default function BranchEntryPage() {
               View Monitoring Sheet
             </button>
             
-            {/* Notification Badge */}
-            {notifications.length > 0 && (
-              <div className="relative">
-                <div className="w-9 h-9 bg-blue-600 rounded-full flex items-center justify-center shadow-md animate-pulse">
-                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                  </svg>
-                </div>
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow">
-                  {notifications.length}
-                </span>
-              </div>
-            )}
+            {/* Notification Center */}
+            <div className="relative" ref={notificationRef}>
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+                className={clsx(
+                  "w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-sm relative border",
+                  isNotificationOpen ? "bg-blue-50 border-blue-200 text-blue-600" : "bg-white border-gray-200 text-gray-500 hover:border-blue-300 hover:text-blue-500"
+                )}
+              >
+                <Bell className="w-5 h-5" />
+                {notifications.length > 0 && (
+                  <span className="absolute -top-1 -right-1 flex h-4 w-4">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-4 w-4 bg-red-500 text-[9px] text-white font-bold items-center justify-center border border-white shadow-sm">
+                      {notifications.length}
+                    </span>
+                  </span>
+                )}
+              </motion.button>
+
+              <AnimatePresence>
+                {isNotificationOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute right-0 top-12 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50 origin-top-right ring-1 ring-black/5"
+                  >
+                    <div className="bg-white/50 backdrop-blur-sm px-5 py-4 border-b border-gray-100 flex items-center justify-between sticky top-0 z-10">
+                      <h3 className="text-xs font-black text-gray-900 uppercase tracking-widest flex items-center gap-2">
+                        Notifications <span className="bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded text-[10px]">{notifications.length}</span>
+                      </h3>
+                      {notifications.length > 0 && (
+                        <button 
+                          onClick={() => setNotifications([])}
+                          className="text-[10px] font-bold text-red-500 hover:text-red-600 flex items-center gap-1.5 px-2 py-1 hover:bg-red-50 rounded-lg transition-colors"
+                        >
+                          <Trash2 className="w-3 h-3" /> Clear
+                        </button>
+                      )}
+                    </div>
+                    
+                    <div className="max-h-[60vh] overflow-y-auto custom-scrollbar bg-gray-50/50">
+                      {notifications.length === 0 ? (
+                        <div className="py-16 flex flex-col items-center justify-center text-center text-gray-400">
+                           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                             <MailOpen className="w-8 h-8 opacity-40" />
+                           </div>
+                           <p className="text-sm font-bold text-gray-500">All caught up!</p>
+                           <p className="text-[10px] font-medium opacity-60 mt-1 uppercase tracking-wide">No new notifications</p>
+                        </div>
+                      ) : (
+                        <div className="divide-y divide-gray-100">
+                          {notifications.map((n) => (
+                            <div key={n.id} className={clsx(
+                              "p-5 hover:bg-white transition-colors flex gap-4 relative group",
+                              n.type === 'URGENT' ? 'bg-red-50/40 hover:bg-red-50/60' : ''
+                            )}>
+                              <div className={clsx(
+                                "shrink-0 w-10 h-10 rounded-xl flex items-center justify-center shadow-sm border",
+                                n.type === 'URGENT' 
+                                  ? "bg-red-100 text-red-600 border-red-200" 
+                                  : "bg-blue-100 text-blue-600 border-blue-200"
+                              )}>
+                                {n.type === 'URGENT' ? <AlertTriangle className="w-5 h-5" /> : <Info className="w-5 h-5" />}
+                              </div>
+                              <div className="flex-1 min-w-0 pt-0.5">
+                                <div className="flex items-center justify-between mb-1">
+                                   {n.type === 'URGENT' && <p className="text-[9px] font-black text-red-600 uppercase tracking-wider border border-red-200 px-1.5 rounded bg-red-50 inline-block">Urgent</p>}
+                                   <p className="text-[9px] font-mono font-bold text-gray-400 ml-auto flex items-center gap-1">
+                                     {new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                   </p>
+                                </div>
+                                <p className="text-sm font-bold text-gray-800 leading-snug">{n.message}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </div>
       </div>
@@ -498,41 +604,52 @@ export default function BranchEntryPage() {
         </div>
       )}
 
-      {/* Unified Notification Toast - Right Side */}
-      {notifications.map(n => (
-        <div key={n.id} className="fixed top-4 right-4 z-50 max-w-xs animate-fade-in mb-3">
-          <div className={`${
-            n.type === 'URGENT' 
-              ? 'bg-gradient-to-r from-red-600 to-red-700' 
-              : 'bg-gradient-to-r from-blue-600 to-blue-700'
-          } text-white rounded-lg shadow-2xl p-4 pr-10 relative`}>
-            <button 
-              onClick={() => setNotifications(prev => prev.filter(notif => notif.id !== n.id))}
-              className="absolute top-2 right-2 text-white/70 hover:text-white transition-colors"
-              title="Dismiss"
+      {/* Toast Notification Container */}
+      <div className="fixed top-4 right-4 z-50 flex flex-col gap-3 w-full max-w-sm pointer-events-none">
+        <AnimatePresence mode="popLayout">
+          {toasts.map((n) => (
+            <motion.div
+              key={n.id}
+              initial={{ opacity: 0, x: 50, scale: 0.95 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: 20, scale: 0.95 }}
+              layout
+              className="pointer-events-auto w-full"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-              </svg>
-            </button>
-            <div className="flex items-start gap-3">
-              {n.type === 'URGENT' ? (
-                <svg className="w-5 h-5 shrink-0 mt-0.5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                </svg>
-              ) : (
-                <svg className="w-5 h-5 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                </svg>
-              )}
-              <div>
-                {n.type === 'URGENT' && <p className="text-[10px] font-black uppercase opacity-75 mb-0.5">Urgent Notice</p>}
-                <p className="text-sm font-medium leading-tight">{n.message}</p>
+              <div className={clsx(
+                "bg-white rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border p-4 flex gap-4 relative overflow-hidden backdrop-blur-md",
+                n.type === 'URGENT' ? "border-red-100 ring-1 ring-red-50" : "border-blue-100 ring-1 ring-blue-50"
+              )}>
+                {/* Accent Bar */}
+                <div className={clsx(
+                  "absolute left-0 top-0 bottom-0 w-1",
+                  n.type === 'URGENT' ? "bg-red-500" : "bg-blue-500"
+                )} />
+
+                <div className={clsx(
+                  "shrink-0 w-10 h-10 rounded-full flex items-center justify-center shadow-sm",
+                  n.type === 'URGENT' ? "bg-red-100 text-red-600" : "bg-blue-100 text-blue-600"
+                )}>
+                  {n.type === 'URGENT' ? <AlertTriangle className="w-5 h-5 animate-pulse" /> : <Info className="w-5 h-5" />}
+                </div>
+
+                <div className="flex-1 min-w-0 pt-0.5">
+                  {n.type === 'URGENT' && <p className="text-[10px] font-black text-red-600 uppercase tracking-widest mb-1">Urgent Notice</p>}
+                  <p className="text-sm font-bold text-gray-800 leading-snug">{n.message}</p>
+                </div>
+
+                <button 
+                  onClick={() => setToasts(prev => prev.filter(t => t.id !== n.id))}
+                  className="shrink-0 text-gray-400 hover:text-gray-600 transition-colors self-start -mt-1 -mr-1 p-1 hover:bg-gray-100 rounded-lg"
+                  aria-label="Dismiss notification"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               </div>
-            </div>
-          </div>
-        </div>
-      ))}
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }
