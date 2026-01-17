@@ -128,6 +128,14 @@ export default function BranchEntryPage() {
               setUrgentNotification(urgent);
               setShowUrgentModal(true);
             }
+            
+            // Auto-dismiss INFO notifications after 5 seconds
+            const infoNotifs = data.notifications.filter((n: Notification) => n.type === 'INFO');
+            if (infoNotifs.length > 0) {
+              setTimeout(() => {
+                setNotifications(prev => prev.filter(n => n.type !== 'INFO'));
+              }, 5000);
+            }
           } else {
              setNotifications([]); // Clear if no active notifications
           }
@@ -243,16 +251,32 @@ export default function BranchEntryPage() {
           </h1>
           <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-6">Daily Shipment Entry</p>
           
-          <button
-            type="button"
-            onClick={() => { loadMyEntries(); setShowMonitorModal(true); }}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-50 border border-gray-200 hover:border-gray-400 text-gray-700 text-xs font-black uppercase rounded-lg transition-all shadow-sm"
-          >
-            <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path>
-            </svg>
-            View Monitoring Sheet
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => { loadMyEntries(); setShowMonitorModal(true); }}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-50 border border-gray-200 hover:border-gray-400 text-gray-700 text-xs font-black uppercase rounded-lg transition-all shadow-sm"
+            >
+              <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path>
+              </svg>
+              View Monitoring Sheet
+            </button>
+            
+            {/* Notification Badge */}
+            {notifications.length > 0 && (
+              <div className="relative">
+                <div className="w-9 h-9 bg-blue-600 rounded-full flex items-center justify-center shadow-md animate-pulse">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                  </svg>
+                </div>
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow">
+                  {notifications.length}
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -484,22 +508,28 @@ export default function BranchEntryPage() {
         </div>
       )}
 
-      {/* Info Notification Banner */}
-      {notifications.filter(n => n.type === 'INFO').length > 0 && (
-        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4">
-          {notifications.filter(n => n.type === 'INFO').map(n => (
-            <div key={n.id} className="bg-blue-600 text-white rounded-lg shadow-lg p-4 flex items-start gap-3">
-              <svg className="w-5 h-5 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      {/* Info Notification Popup - Right Side */}
+      {notifications.filter(n => n.type === 'INFO').map(n => (
+        <div key={n.id} className="fixed top-4 right-4 z-50 max-w-xs animate-fade-in">
+          <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg shadow-2xl p-4 pr-10 relative">
+            <button 
+              onClick={() => setNotifications(prev => prev.filter(notif => notif.id !== n.id))}
+              className="absolute top-2 right-2 text-white/70 hover:text-white transition-colors"
+              title="Dismiss"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
               </svg>
-              <div className="flex-1">
-                <p className="text-sm font-bold">Message from Admin</p>
-                <p className="text-sm opacity-90">{n.message}</p>
-              </div>
+            </button>
+            <div className="flex items-start gap-3">
+              <svg className="w-5 h-5 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+              </svg>
+              <p className="text-sm font-medium">{n.message}</p>
             </div>
-          ))}
+          </div>
         </div>
-      )}
+      ))}
 
       {/* Urgent Notification Modal */}
       {showUrgentModal && urgentNotification && (
