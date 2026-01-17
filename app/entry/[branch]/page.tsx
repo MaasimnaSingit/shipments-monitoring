@@ -516,7 +516,7 @@ export default function BranchEntryPage() {
               onClick={() => setShowUrgentModal(false)}
               className="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-black text-sm uppercase rounded-lg shadow-lg transition-colors"
             >
-              I Understand
+              Close
             </button>
           </div>
         </div>
