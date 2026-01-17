@@ -1,0 +1,66 @@
+import re
+
+# Read file
+with open(r'c:\Users\Asus\Desktop\MONITORING\parcel-monitor\components\Dashboard.tsx', 'r', encoding='utf-8') as f:
+    content = f.read()
+
+# Old pattern to find
+old = '''                       {dates.map(date => {
+                          const count = row.dates[date] || 0;
+                          const colorClass = getCountColor(count, maxDailyCount);
+                          const isToday = date === new Date().toISOString().split('T')[0];
+                          
+                          return (
+                            <td key={date} className="text-center">
+                              <span className={`inline-flex items-center justify-center min-w-[32px] h-7 px-2 rounded text-xs transition-all ${
+                                colorClass
+                              } ${
+                                isToday ? 'ring-2 ring-blue-400 ring-offset-1' : ''
+                              }`}>
+                                {count > 0 ? count : '-'}
+                              </span>
+                            </td>
+                          );
+                        })}'''
+
+# New code with delete button
+new = '''                       {dates.map(date => {
+                          const count = row.dates[date] || 0;
+                          const colorClass = getCountColor(count, maxDailyCount);
+                          const isToday = date === new Date().toISOString().split('T')[0];
+                          const record = uploadedData.find(d => d.branch === activeTab && d.vip_code === row.code && d.date === date);
+                          
+                          return (
+                            <td key={date} className="text-center relative group">
+                              {count > 0 && record ? (
+                                <div className="relative inline-block">
+                                  <span className={`inline-flex items-center justify-center min-w-[32px] h-7 px-2 rounded text-xs transition-all ${
+                                    colorClass
+                                  } ${
+                                    isToday ? 'ring-2 ring-blue-400 ring-offset-1' : ''
+                                  }`}>
+                                    {count}
+                                  </span>
+                                  <button
+                                    onClick={() => { setRecordToDelete(record); setShowDeleteRecordModal(true); }}
+                                    className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                                    title="Delete record"
+                                  >
+                                    <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                  </button>
+                                </div>
+                              ) : (
+                                <span className="text-gray-300 text-xs">-</span>
+                              )}
+                            </td>
+                          );
+                        })}'''
+
+# Replace
+content = content.replace(old, new)
+
+# Write back
+with open(r'c:\Users\Asus\Desktop\MONITORING\parcel-monitor\components\Dashboard.tsx', 'w', encoding='utf-8') as f:
+    f.write(content)
+
+print("✅ Delete buttons added successfully!")

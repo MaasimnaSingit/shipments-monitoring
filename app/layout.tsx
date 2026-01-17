@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Parcel Monitor | VIP & Walk-in Tracking",
-  description: "Automated Volume Tracking System for Logistics Operations",
+  title: "DskLab Solutions | Parcel Monitoring",
+  description: "Enterprise Volume Tracking & Monitoring System by DskLab Solutions",
 };
 
 export default function RootLayout({

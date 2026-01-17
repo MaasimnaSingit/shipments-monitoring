@@ -2,8 +2,10 @@
 
 import { useState, useMemo, useRef, useEffect } from 'react';
 import VIP_STRUCTURE from '@/lib/vip-structure.json';
+import BranchChart from './BranchChart';
 
 type DailyRecord = {
+  id?: number;
   branch: string;
   vip_code: string;
   vip_name: string;
@@ -57,6 +59,11 @@ export default function Dashboard() {
   const [quickEntryVIPCounts, setQuickEntryVIPCounts] = useState<Record<string, string>>({});
   const [quickEntryWalkin, setQuickEntryWalkin] = useState('');
   const [quickEntryDate, setQuickEntryDate] = useState(new Date().toISOString().split('T')[0]);
+
+  // Delete Record State
+  const [showDeleteRecordModal, setShowDeleteRecordModal] = useState(false);
+  const [recordToDelete, setRecordToDelete] = useState<DailyRecord | null>(null);
+
 
   // Load VIP structure on mount
   useEffect(() => {
@@ -157,7 +164,7 @@ export default function Dashboard() {
     return { totalParcels, walkInTotal, vipTotal };
   }, [uploadedData, activeTab]);
 
-  // Target state
+  // Target state - with defaults that will be overwritten by database
   const [targets, setTargets] = useState<{[key: string]: number}>({
     'FLORIDA': 5000,
     'LUBAO': 3000,
@@ -168,15 +175,39 @@ export default function Dashboard() {
   const [isEditingTarget, setIsEditingTarget] = useState(false);
   const [tempTarget, setTempTarget] = useState('');
 
+  // Load targets from database on mount
+  useEffect(() => {
+    fetch('/api/targets')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && Object.keys(data.targets).length > 0) {
+          setTargets(prev => ({ ...prev, ...data.targets }));
+        }
+      })
+      .catch(err => console.error('Failed to load targets:', err));
+  }, []);
+
   const currentTarget = targets[activeTab] || 0;
   const currentTotal = stats.totalParcels;
-  const progressPercentage = Math.min((currentTotal / currentTarget) * 100, 100);
+  const progressPercentage = currentTarget > 0 ? Math.min((currentTotal / currentTarget) * 100, 100) : 0;
 
-  const handleUpdateTarget = () => {
+  const handleUpdateTarget = async () => {
     const val = parseInt(tempTarget.replace(/,/g, ''));
     if (!isNaN(val) && val > 0) {
+      // Update local state immediately
       setTargets(prev => ({...prev, [activeTab]: val}));
       setIsEditingTarget(false);
+      
+      // Save to database
+      try {
+        await fetch('/api/targets', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ branch: activeTab, target: val })
+        });
+      } catch (err) {
+        console.error('Failed to save target:', err);
+      }
     }
   };
   
@@ -351,6 +382,44 @@ export default function Dashboard() {
     }
   };
 
+
+  // Delete Record Handler
+  const handleDeleteRecord = async () => {
+    if (!recordToDelete?.id) return;
+    
+    try {
+      const response = await fetch(`/api/data?id=${recordToDelete.id}`, {
+        method: 'DELETE'
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Refresh data
+        const startDate = new Date(selectedYear, selectedMonth, 1).toISOString().split('T')[0];
+        const endDate = new Date(selectedYear, selectedMonth + 1, 0).toISOString().split('T')[0];
+        
+        const dataRes = await fetch(`/api/data?startDate=${startDate}&endDate=${endDate}`);
+        const dataResult = await dataRes.json();
+        
+        if (dataResult.success) {
+          setUploadedData(dataResult.records);
+        }
+
+        setSyncStatus('success');
+        setSyncMessage('✓ Record deleted successfully');
+        setShowDeleteRecordModal(false);
+        setRecordToDelete(null);
+        
+        setTimeout(() => setSyncStatus('idle'), 3000);
+      } else {
+        alert('Failed to delete: ' + result.error);
+      }
+    } catch (error: any) {
+      alert('Error: ' + error.message);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header - CLEAN WHITE MINIMALIST */}
@@ -361,7 +430,7 @@ export default function Dashboard() {
             {/* 1. Logo & Title */}
             <div className="flex items-center gap-4 shrink-0">
               <div className="w-14 h-14 bg-white rounded-lg flex items-center justify-center overflow-hidden border border-gray-200">
-                 <img src="/logo.png" alt="LMXG Logo" className="w-full h-full object-contain p-1.5" />
+                 <img src="/logo.png" alt="DskLab Logo" className="w-full h-full object-contain p-1.5" />
               </div>
               <div className="hidden sm:block">
                 <h1 className="text-lg font-extrabold text-gray-900 tracking-tight leading-none uppercase">Monitoring System</h1>
@@ -484,6 +553,9 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <main className="max-w-[1900px] mx-auto px-8 py-6 space-y-5">
+        {/* BRANCH COMPARISON CHART */}
+        <BranchChart data={uploadedData} branches={branches} />
+
         {/* NEW WALKIN SECTION */}
         {walkinRow && (
           <div className="mb-8 bg-white border border-amber-100 rounded-xl shadow-sm overflow-hidden">
@@ -510,17 +582,36 @@ export default function Dashboard() {
                            const colorClass = getCountColor(count, maxDailyCount);
                            const isToday = date === new Date().toISOString().split('T')[0];
                            
-                           return (
-                              <td key={date} className="p-2 text-center">
-                                 <span className={`inline-flex items-center justify-center min-w-[32px] h-7 px-2 rounded text-xs transition-all ${
-                                   colorClass
-                                 } ${
-                                   isToday ? 'ring-2 ring-blue-400 ring-offset-1' : ''
-                                 }`}>
-                                    {count > 0 ? count : '-'}
-                                 </span>
+                           
+                            const record = uploadedData.find(d => d.branch === activeTab && d.vip_code === 'WALKIN' && d.date === date);
+                            
+                            let cellContent;
+                            if (count > 0 && record) {
+                              cellContent = (
+                                <div className="relative inline-block">
+                                  <span className={`inline-flex items-center justify-center min-w-[32px] h-7 px-2 rounded text-xs transition-all ${colorClass} ${isToday ? 'ring-2 ring-blue-400 ring-offset-1' : ''}`}>
+                                    {count}
+                                  </span>
+                                  <button 
+                                    onClick={() => { setRecordToDelete(record); setShowDeleteRecordModal(true); }}
+                                    className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                                    title="Delete"
+                                  >
+                                    <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                  </button>
+                                </div>
+                              );
+                            } else {
+                              cellContent = <span className="text-gray-300 text-xs">-</span>;
+                            }
+
+                            return (
+                              <td key={date} className="p-2 text-center relative group">
+                                {cellContent}
                               </td>
-                           );
+                            );
                          })}
                      </tr>
                    </tbody>
@@ -626,22 +717,39 @@ export default function Dashboard() {
                       <td className="font-medium text-gray-900">{row.name}</td>
 
                        {dates.map(date => {
-                         const count = row.dates[date] || 0;
-                         const colorClass = getCountColor(count, maxDailyCount);
-                         const isToday = date === new Date().toISOString().split('T')[0];
-                         
-                         return (
-                           <td key={date} className="text-center">
-                             <span className={`inline-flex items-center justify-center min-w-[32px] h-7 px-2 rounded text-xs transition-all ${
-                               colorClass
-                             } ${
-                               isToday ? 'ring-2 ring-blue-400 ring-offset-1' : ''
-                             }`}>
-                               {count > 0 ? count : '-'}
-                             </span>
-                           </td>
-                         );
-                       })}
+                          const count = row.dates[date] || 0;
+                          const colorClass = getCountColor(count, maxDailyCount);
+                          const isToday = date === new Date().toISOString().split('T')[0];
+                          const record = uploadedData.find(d => d.branch === activeTab && d.vip_code === row.code && d.date === date);
+                          
+                          let cellContent;
+                          if (count > 0 && record) {
+                            cellContent = (
+                              <div className="relative inline-block">
+                                <span className={`inline-flex items-center justify-center min-w-[32px] h-7 px-2 rounded text-xs transition-all ${colorClass} ${isToday ? 'ring-2 ring-blue-400 ring-offset-1' : ''}`}>
+                                  {count}
+                                </span>
+                                <button 
+                                  onClick={() => { setRecordToDelete(record); setShowDeleteRecordModal(true); }}
+                                  className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                                  title="Delete"
+                                >
+                                  <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" />
+                                  </svg>
+                                </button>
+                              </div>
+                            );
+                          } else {
+                            cellContent = <span className="text-gray-300 text-xs">-</span>;
+                          }
+
+                          return (
+                            <td key={date} className="text-center relative group">
+                              {cellContent}
+                            </td>
+                          );
+                        })}
                     </tr>
                   ))}
                 </tbody>
@@ -782,6 +890,44 @@ export default function Dashboard() {
         </div>
       )}
 
+
+      {/* Delete Record Confirmation Modal */}
+      {showDeleteRecordModal && recordToDelete && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6 text-center animate-fade-in">
+            <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+              </svg>
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Delete Record?</h3>
+            <p className="text-sm text-gray-600 mb-2">
+              Are you sure you want to delete this record?
+            </p>
+            <div className="bg-gray-50 rounded-lg p-3 mb-6 text-left">
+              <p className="text-xs font-bold text-gray-500">RECORD DETAILS</p>
+              <p className="text-sm font-bold text-gray-900 mt-1">{recordToDelete.vip_name}</p>
+              <p className="text-xs text-gray-500 font-medium">
+                {recordToDelete.branch} • {new Date(recordToDelete.date).toLocaleDateString()} • {recordToDelete.count} parcels
+              </p>
+            </div>
+            <div className="flex justify-center gap-3">
+              <button 
+                onClick={() => { setShowDeleteRecordModal(false); setRecordToDelete(null); }}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleDeleteRecord}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700"
+              >
+                Yes, Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Quick Entry Modal - Individual VIP Entry */}
       {showQuickEntry && (

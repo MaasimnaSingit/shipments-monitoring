@@ -30,6 +30,9 @@ export default function BranchEntryPage() {
   const [myEntries, setMyEntries] = useState<EntryRecord[]>([]);
   const [showMonitorModal, setShowMonitorModal] = useState(false);
   
+  // Store the actual database branch name (e.g., "STO CRISTO" not "STO-CRISTO")
+  const [resolvedBranchName, setResolvedBranchName] = useState<string>('');
+  
   // Get current month info
   const now = new Date();
   const currentMonth = now.getMonth();
@@ -41,8 +44,22 @@ export default function BranchEntryPage() {
     fetch('/api/vip')
       .then(res => res.json())
       .then(data => {
-        const branchData = data.branches?.find((b: { name: string }) => b.name === branchName);
+        // Normalize the URL branch name: 'sto-cristo' -> 'STO CRISTO'
+        const normalizedUrlBranch = decodeURIComponent(branchName)
+          .replace(/-/g, ' ')
+          .toUpperCase();
+          
+        const branchData = data.branches?.find((b: { name: string }) => 
+          b.name.toUpperCase() === normalizedUrlBranch ||
+          b.name.toUpperCase() === branchName.replace(/%20/g, ' ')
+        );
         if (branchData) {
+          // Store actual DB branch name
+          setResolvedBranchName(branchData.name);
+
+          // Store actual DB branch name
+          setResolvedBranchName(branchData.name);
+          
           const filteredVips = (branchData.vips || []).filter(
             (vip: VIPClient) => vip.code !== 'VIP' && vip.code !== 'WALKIN'
           );
@@ -54,16 +71,20 @@ export default function BranchEntryPage() {
           });
           initialCounts['WALKIN'] = '';
           setCounts(initialCounts);
+        } else {
+          // 🛡️ BRANCH VALIDATION: If branch not found, kick back to dashboard
+          console.error(`Invalid branch: ${branchName}`);
+          router.push('/');
         }
       });
-  }, [branchName]);
+  }, [branchName, router]);
 
   const loadMyEntries = () => {
     const now = new Date();
     const startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
     const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
     
-    fetch(`/api/data?branch=${branchName}&startDate=${startDate}&endDate=${endDate}`)
+    fetch(`/api/data?branch=${resolvedBranchName || branchName}&startDate=${startDate}&endDate=${endDate}`)
       .then(res => res.json())
       .then(data => {
         if (data.success) {
@@ -114,7 +135,7 @@ export default function BranchEntryPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          branch: branchName,
+          branch: resolvedBranchName || branchName,
           date,
           entries
         })
@@ -158,7 +179,7 @@ export default function BranchEntryPage() {
             <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-2xl font-black text-gray-900 uppercase tracking-tight leading-none mb-1">
-            {branchName} BRANCH
+            {resolvedBranchName || branchName.replace(/-/g, ' ')} BRANCH
           </h1>
           <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-6">Daily Shipment Entry</p>
           
@@ -294,7 +315,7 @@ export default function BranchEntryPage() {
         </div>
 
         <p className="text-center mt-8 text-[10px] font-black text-gray-400 uppercase tracking-widest">
-          Secured Enterprise Portal • LMXG Logistics
+          Secured Enterprise Portal • DskLab Solutions
         </p>
       </div>
 

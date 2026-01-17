@@ -62,6 +62,10 @@
         {
           "code": "NWL-F7537",
           "name": "KATIES ONLINE SHOP"
+        },
+        {
+          "code": "NWL-TEST001",
+          "name": "TEST VIP CLIENT"
         }
       ]
     },
@@ -117,11 +121,11 @@
           "name": "RICA MONTEMAYOR"
         },
         {
-          "code": "N/A",
+          "code": "TEMP-LUBAO-001",
           "name": "LUISA POBLETE"
         },
         {
-          "code": "N/A",
+          "code": "TEMP-LUBAO-002",
           "name": "RK PONIO"
         }
       ]
@@ -178,7 +182,7 @@
           "name": "THE BAG STORE PH"
         },
         {
-          "code": "NWL",
+          "code": "NWL-ST-QQ1Y5J",
           "name": "TATAYRON TV"
         },
         {
@@ -186,11 +190,11 @@
           "name": "MADELYN DAYRIT"
         },
         {
-          "code": "N/A",
+          "code": "TEMP-SC-001",
           "name": "GLOW WITH FAB"
         },
         {
-          "code": "N/A",
+          "code": "TEMP-SC-002",
           "name": "MARINA PANLILIO"
         },
         {
@@ -238,7 +242,7 @@
           "name": "ROSE MARIE MCRILEY"
         },
         {
-          "code": "NWL",
+          "code": "NWL-001",
           "name": "VIP OTHER BRANCH/SHIPMATES"
         },
         {
@@ -374,7 +378,7 @@
           "name": "AINSLEY LOUISE"
         },
         {
-          "code": "NWL-F5722",
+          "code": "NWL-F5722-001",
           "name": "ANGEL JOYCE ALLANIGUE"
         },
         {
