@@ -17,6 +17,15 @@ interface EntryRecord {
   count: number;
 }
 
+interface Notification {
+  id: string;
+  message: string;
+  target_branch: string;
+  type: 'INFO' | 'URGENT';
+  is_active: boolean;
+  created_at: string;
+}
+
 export default function BranchEntryPage() {
   const params = useParams();
   const router = useRouter();
@@ -29,6 +38,11 @@ export default function BranchEntryPage() {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [myEntries, setMyEntries] = useState<EntryRecord[]>([]);
   const [showMonitorModal, setShowMonitorModal] = useState(false);
+  
+  // Notification State
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [showUrgentModal, setShowUrgentModal] = useState(false);
+  const [urgentNotification, setUrgentNotification] = useState<Notification | null>(null);
   
   // Store the actual database branch name (e.g., "STO CRISTO" not "STO-CRISTO")
   const [resolvedBranchName, setResolvedBranchName] = useState<string>('');
@@ -96,6 +110,27 @@ export default function BranchEntryPage() {
   useEffect(() => {
     loadMyEntries();
   }, [branchName]);
+
+  // Load notifications for this branch
+  useEffect(() => {
+    if (!resolvedBranchName) return;
+    
+    fetch(`/api/notifications?branch=${encodeURIComponent(resolvedBranchName)}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.notifications?.length > 0) {
+          setNotifications(data.notifications);
+          
+          // Check for URGENT notifications
+          const urgent = data.notifications.find((n: Notification) => n.type === 'URGENT');
+          if (urgent) {
+            setUrgentNotification(urgent);
+            setShowUrgentModal(true);
+          }
+        }
+      })
+      .catch(console.error);
+  }, [resolvedBranchName]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -420,6 +455,44 @@ export default function BranchEntryPage() {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Info Notification Banner */}
+      {notifications.filter(n => n.type === 'INFO').length > 0 && (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4">
+          {notifications.filter(n => n.type === 'INFO').map(n => (
+            <div key={n.id} className="bg-blue-600 text-white rounded-lg shadow-lg p-4 flex items-start gap-3">
+              <svg className="w-5 h-5 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <div className="flex-1">
+                <p className="text-sm font-bold">Message from Admin</p>
+                <p className="text-sm opacity-90">{n.message}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Urgent Notification Modal */}
+      {showUrgentModal && urgentNotification && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm p-6 text-center animate-fade-in">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+              </svg>
+            </div>
+            <h3 className="text-xl font-black text-gray-900 mb-2 uppercase">Urgent Notice</h3>
+            <p className="text-gray-700 mb-6">{urgentNotification.message}</p>
+            <button 
+              onClick={() => setShowUrgentModal(false)}
+              className="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-black text-sm uppercase rounded-lg shadow-lg transition-colors"
+            >
+              I Understand
+            </button>
           </div>
         </div>
       )}

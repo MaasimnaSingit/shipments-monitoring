@@ -64,6 +64,13 @@ export default function Dashboard() {
   const [showDeleteRecordModal, setShowDeleteRecordModal] = useState(false);
   const [recordToDelete, setRecordToDelete] = useState<DailyRecord | null>(null);
 
+  // Broadcast Notification State
+  const [showBroadcastModal, setShowBroadcastModal] = useState(false);
+  const [broadcastMessage, setBroadcastMessage] = useState('');
+  const [broadcastTarget, setBroadcastTarget] = useState('ALL');
+  const [broadcastType, setBroadcastType] = useState<'INFO' | 'URGENT'>('INFO');
+  const [isSendingBroadcast, setIsSendingBroadcast] = useState(false);
+
 
   // Load VIP structure on mount
   useEffect(() => {
@@ -289,6 +296,44 @@ export default function Dashboard() {
     } else {
       alert(result.error);
     }
+  };
+
+  // Send Broadcast Notification
+  const handleSendBroadcast = async () => {
+    if (!broadcastMessage.trim()) {
+      alert('Please enter a message');
+      return;
+    }
+    
+    setIsSendingBroadcast(true);
+    try {
+      const res = await fetch('/api/notifications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'CREATE',
+          message: broadcastMessage,
+          targetBranch: broadcastTarget,
+          type: broadcastType
+        })
+      });
+      
+      const result = await res.json();
+      if (result.success) {
+        setShowBroadcastModal(false);
+        setBroadcastMessage('');
+        setBroadcastTarget('ALL');
+        setBroadcastType('INFO');
+        setSyncStatus('success');
+        setSyncMessage('✓ Notification sent successfully!');
+        setTimeout(() => setSyncStatus('idle'), 3000);
+      } else {
+        alert('Failed to send: ' + result.error);
+      }
+    } catch (error) {
+      alert('Error sending notification');
+    }
+    setIsSendingBroadcast(false);
   };
 
   const openEditModal = (vip: VIPEntry) => {
@@ -531,6 +576,15 @@ export default function Dashboard() {
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4"></path></svg>
                     <span>Quick Add</span>
+                  </button>
+
+                  <button 
+                    onClick={() => setShowBroadcastModal(true)} 
+                    className="h-10 px-4 bg-amber-500 hover:bg-amber-600 text-white text-xs font-black uppercase rounded-lg shadow-sm transition-colors flex items-center gap-2"
+                    title="Send notification to branches"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                    <span>Broadcast</span>
                   </button>
 
                   <button 
@@ -1073,6 +1127,107 @@ export default function Dashboard() {
 
               {/* Keyboard Hint */}
 
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Broadcast Notification Modal */}
+      {showBroadcastModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 animate-fade-in">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-900">Send Broadcast</h3>
+                <p className="text-xs text-gray-500">Notify branches with a message</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {/* Target */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Send To</label>
+                <select 
+                  value={broadcastTarget}
+                  onChange={e => setBroadcastTarget(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm"
+                >
+                  <option value="ALL">All Branches</option>
+                  {branches.map(b => (
+                    <option key={b.name} value={b.name}>{b.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Type */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setBroadcastType('INFO')}
+                    className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium border transition-colors ${
+                      broadcastType === 'INFO' 
+                        ? 'bg-blue-50 border-blue-300 text-blue-700' 
+                        : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                    }`}
+                  >
+                    🔵 Info
+                  </button>
+                  <button
+                    onClick={() => setBroadcastType('URGENT')}
+                    className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium border transition-colors ${
+                      broadcastType === 'URGENT' 
+                        ? 'bg-red-50 border-red-300 text-red-700' 
+                        : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                    }`}
+                  >
+                    🔴 Urgent
+                  </button>
+                </div>
+              </div>
+
+              {/* Message */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                <textarea 
+                  value={broadcastMessage}
+                  onChange={e => setBroadcastMessage(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm resize-none"
+                  rows={3}
+                  placeholder="Type your message here..."
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button 
+                onClick={() => {
+                  setShowBroadcastModal(false);
+                  setBroadcastMessage('');
+                }}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleSendBroadcast}
+                disabled={isSendingBroadcast || !broadcastMessage.trim()}
+                className="px-4 py-2 text-sm font-medium text-white bg-amber-500 rounded-lg hover:bg-amber-600 disabled:opacity-50 flex items-center gap-2"
+              >
+                {isSendingBroadcast ? (
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                ) : (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                  </svg>
+                )}
+                Send
+              </button>
             </div>
           </div>
         </div>
