@@ -142,8 +142,12 @@ export default function BranchEntryPage() {
           if (data.success) {
             const currentNotifs = data.notifications || [];
             
+            // Filter out locally dismissed notifications
+            const dismissedIds = JSON.parse(localStorage.getItem('dismissed_notifications') || '[]');
+            const activeNotifs = currentNotifs.filter((n: Notification) => !dismissedIds.includes(n.id));
+            
             // Detect NEW notifications for Toasts
-            const newItems = currentNotifs.filter((n: Notification) => !lastKnownIds.current.has(n.id));
+            const newItems = activeNotifs.filter((n: Notification) => !lastKnownIds.current.has(n.id));
             
             if (newItems.length > 0) {
               setToasts(prev => [...prev, ...newItems]);
@@ -157,10 +161,10 @@ export default function BranchEntryPage() {
             }
 
             // Update interactions state
-            setNotifications(currentNotifs);
+            setNotifications(activeNotifs);
             
             // Update ref
-            lastKnownIds.current = new Set(currentNotifs.map((n: Notification) => n.id));
+            lastKnownIds.current = new Set(activeNotifs.map((n: Notification) => n.id));
           }
         })
         .catch(console.error);
@@ -187,6 +191,27 @@ export default function BranchEntryPage() {
       };
     });
   }, [resolvedBranchName]);
+
+  const dismissNotification = (id: string) => {
+    // Update State
+    setNotifications(prev => prev.filter(n => n.id !== id));
+    
+    // Persist to LocalStorage
+    const dismissedIds = JSON.parse(localStorage.getItem('dismissed_notifications') || '[]');
+    if (!dismissedIds.includes(id)) {
+      dismissedIds.push(id);
+      localStorage.setItem('dismissed_notifications', JSON.stringify(dismissedIds));
+    }
+  };
+
+  const clearAllNotifications = () => {
+    const ids = notifications.map(n => n.id);
+    const dismissedIds = JSON.parse(localStorage.getItem('dismissed_notifications') || '[]');
+    const newDismissed = [...new Set([...dismissedIds, ...ids])];
+    
+    localStorage.setItem('dismissed_notifications', JSON.stringify(newDismissed));
+    setNotifications([]);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -257,6 +282,11 @@ export default function BranchEntryPage() {
   };
 
   const currentTotal = Object.values(counts).reduce((sum, val) => sum + (parseInt(val as string) || 0), 0);
+  
+  // Determine Header Label (Branch vs Warehouse)
+  const displayBranchName = resolvedBranchName || branchName.replace(/-/g, ' ');
+  const isWarehouse = ['WAREHOUSE', 'PANDAN'].some(w => displayBranchName.toUpperCase().includes(w));
+  const entityLabel = isWarehouse ? 'WAREHOUSE' : 'BRANCH';
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center">
@@ -270,7 +300,7 @@ export default function BranchEntryPage() {
             <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-2xl font-black text-gray-900 uppercase tracking-tight leading-none mb-1">
-            {resolvedBranchName || branchName.replace(/-/g, ' ')} BRANCH
+            {displayBranchName} {entityLabel}
           </h1>
           <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-6">Daily Shipment Entry</p>
           
@@ -322,7 +352,7 @@ export default function BranchEntryPage() {
                       </h3>
                       {notifications.length > 0 && (
                         <button 
-                          onClick={() => setNotifications([])}
+                          onClick={clearAllNotifications}
                           className="text-[10px] font-bold text-red-500 hover:text-red-600 flex items-center gap-1.5 px-2 py-1 hover:bg-red-50 rounded-lg transition-colors"
                         >
                           <Trash2 className="w-3 h-3" /> Clear
@@ -639,7 +669,7 @@ export default function BranchEntryPage() {
                 </div>
 
                 <button 
-                  onClick={() => setToasts(prev => prev.filter(t => t.id !== n.id))}
+                  onClick={() => dismissNotification(n.id)}
                   className="shrink-0 text-gray-400 hover:text-gray-600 transition-colors self-start -mt-1 -mr-1 p-1 hover:bg-gray-100 rounded-lg"
                   aria-label="Dismiss notification"
                 >
