@@ -41,8 +41,6 @@ export default function BranchEntryPage() {
   
   // Notification State
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [showUrgentModal, setShowUrgentModal] = useState(false);
-  const [urgentNotification, setUrgentNotification] = useState<Notification | null>(null);
   
   // Store the actual database branch name (e.g., "STO CRISTO" not "STO-CRISTO")
   const [resolvedBranchName, setResolvedBranchName] = useState<string>('');
@@ -122,18 +120,10 @@ export default function BranchEntryPage() {
           if (data.success && data.notifications?.length > 0) {
             setNotifications(data.notifications);
             
-            // Check for URGENT notifications
-            const urgent = data.notifications.find((n: Notification) => n.type === 'URGENT');
-            if (urgent) {
-              setUrgentNotification(urgent);
-              setShowUrgentModal(true);
-            }
-            
-            // Auto-dismiss INFO notifications after 5 seconds
-            const infoNotifs = data.notifications.filter((n: Notification) => n.type === 'INFO');
-            if (infoNotifs.length > 0) {
+            // Auto-dismiss ALL notifications after 5 seconds
+            if (data.notifications.length > 0) {
               setTimeout(() => {
-                setNotifications(prev => prev.filter(n => n.type !== 'INFO'));
+                setNotifications([]);
               }, 5000);
             }
           } else {
@@ -508,10 +498,14 @@ export default function BranchEntryPage() {
         </div>
       )}
 
-      {/* Info Notification Popup - Right Side */}
-      {notifications.filter(n => n.type === 'INFO').map(n => (
-        <div key={n.id} className="fixed top-4 right-4 z-50 max-w-xs animate-fade-in">
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg shadow-2xl p-4 pr-10 relative">
+      {/* Unified Notification Toast - Right Side */}
+      {notifications.map(n => (
+        <div key={n.id} className="fixed top-4 right-4 z-50 max-w-xs animate-fade-in mb-3">
+          <div className={`${
+            n.type === 'URGENT' 
+              ? 'bg-gradient-to-r from-red-600 to-red-700' 
+              : 'bg-gradient-to-r from-blue-600 to-blue-700'
+          } text-white rounded-lg shadow-2xl p-4 pr-10 relative`}>
             <button 
               onClick={() => setNotifications(prev => prev.filter(notif => notif.id !== n.id))}
               className="absolute top-2 right-2 text-white/70 hover:text-white transition-colors"
@@ -522,35 +516,23 @@ export default function BranchEntryPage() {
               </svg>
             </button>
             <div className="flex items-start gap-3">
-              <svg className="w-5 h-5 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-              </svg>
-              <p className="text-sm font-medium">{n.message}</p>
+              {n.type === 'URGENT' ? (
+                <svg className="w-5 h-5 shrink-0 mt-0.5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+              ) : (
+                <svg className="w-5 h-5 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                </svg>
+              )}
+              <div>
+                {n.type === 'URGENT' && <p className="text-[10px] font-black uppercase opacity-75 mb-0.5">Urgent Notice</p>}
+                <p className="text-sm font-medium leading-tight">{n.message}</p>
+              </div>
             </div>
           </div>
         </div>
       ))}
-
-      {/* Urgent Notification Modal */}
-      {showUrgentModal && urgentNotification && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm p-6 text-center animate-fade-in">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-              </svg>
-            </div>
-            <h3 className="text-xl font-black text-gray-900 mb-2 uppercase">Urgent Notice</h3>
-            <p className="text-gray-700 mb-6">{urgentNotification.message}</p>
-            <button 
-              onClick={() => setShowUrgentModal(false)}
-              className="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-black text-sm uppercase rounded-lg shadow-lg transition-colors"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
