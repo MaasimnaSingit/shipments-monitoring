@@ -82,18 +82,44 @@ export default function Dashboard() {
   }, []);
 
   // Load parcel data from Supabase on mount and when month changes
+  // Load parcel data from Supabase on mount and when month changes
   useEffect(() => {
     const startDate = new Date(selectedYear, selectedMonth, 1).toISOString().split('T')[0];
     const endDate = new Date(selectedYear, selectedMonth + 1, 0).toISOString().split('T')[0];
     
-    fetch(`/api/data?startDate=${startDate}&endDate=${endDate}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.success && data.records) {
-          setUploadedData(data.records);
-        }
-      })
-      .catch(console.error);
+    const fetchData = () => {
+      fetch(`/api/data?startDate=${startDate}&endDate=${endDate}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.records) {
+            setUploadedData(data.records);
+          }
+        })
+        .catch(console.error);
+    };
+
+    // Initial Fetch
+    fetchData();
+
+    // Set up Realtime Subscription
+    import('@/lib/supabase').then(({ supabase }) => {
+      const channel = supabase
+        .channel('realtime-parcels')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'parcel_data' },
+          (payload) => {
+            console.log('Realtime change received!', payload);
+            fetchData(); // Simply re-fetch data on any change
+          }
+        )
+        .subscribe();
+
+      // Cleanup
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    });
   }, [selectedMonth, selectedYear]);
 
   // Generate date range (selected month/year)

@@ -115,21 +115,46 @@ export default function BranchEntryPage() {
   useEffect(() => {
     if (!resolvedBranchName) return;
     
-    fetch(`/api/notifications?branch=${encodeURIComponent(resolvedBranchName)}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.success && data.notifications?.length > 0) {
-          setNotifications(data.notifications);
-          
-          // Check for URGENT notifications
-          const urgent = data.notifications.find((n: Notification) => n.type === 'URGENT');
-          if (urgent) {
-            setUrgentNotification(urgent);
-            setShowUrgentModal(true);
+    const fetchNotifications = () => {
+      fetch(`/api/notifications?branch=${encodeURIComponent(resolvedBranchName)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.notifications?.length > 0) {
+            setNotifications(data.notifications);
+            
+            // Check for URGENT notifications
+            const urgent = data.notifications.find((n: Notification) => n.type === 'URGENT');
+            if (urgent) {
+              setUrgentNotification(urgent);
+              setShowUrgentModal(true);
+            }
+          } else {
+             setNotifications([]); // Clear if no active notifications
           }
-        }
-      })
-      .catch(console.error);
+        })
+        .catch(console.error);
+    };
+
+    fetchNotifications();
+
+    // Set up Realtime Subscription for Notifications
+    import('@/lib/supabase').then(({ supabase }) => {
+      const channel = supabase
+        .channel('realtime-notifications')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'notifications' },
+          (payload) => {
+            console.log('Notification update received!', payload);
+            fetchNotifications();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    });
   }, [resolvedBranchName]);
 
   const handleSubmit = async (e: React.FormEvent) => {
