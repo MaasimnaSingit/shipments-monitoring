@@ -106,7 +106,7 @@ export default function BranchChart({ data, branches, targets }: BranchChartProp
                       </div>
                       <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
                         <div 
-                          className="h-full bg-gradient-to-r from-purple-500 to-purple-600 rounded-full transition-all duration-300"
+                          className="h-full bg-linear-to-r from-purple-500 to-purple-600 rounded-full transition-all duration-300"
                           style={{ width: `${vipPercentage}%` }}
                         ></div>
                       </div>
@@ -121,7 +121,7 @@ export default function BranchChart({ data, branches, targets }: BranchChartProp
                       </div>
                       <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
                         <div 
-                          className="h-full bg-gradient-to-r from-amber-500 to-amber-600 rounded-full transition-all duration-300"
+                          className="h-full bg-linear-to-r from-amber-500 to-amber-600 rounded-full transition-all duration-300"
                           style={{ width: `${walkinPercentage}%` }}
                         ></div>
                       </div>
@@ -138,7 +138,7 @@ export default function BranchChart({ data, branches, targets }: BranchChartProp
                       </div>
                       <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
                         <div 
-                          className={`h-full rounded-full transition-all duration-300 ${isOverTarget ? 'bg-gradient-to-r from-green-500 to-green-600' : 'bg-gradient-to-r from-red-500 to-red-600'}`}
+                          className={`h-full rounded-full transition-all duration-300 ${isOverTarget ? 'bg-linear-to-r from-green-500 to-green-600' : 'bg-linear-to-r from-red-500 to-red-600'}`}
                           style={{ width: `${targetPercentage}%` }}
                         ></div>
                       </div>

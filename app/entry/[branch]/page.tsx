@@ -561,7 +561,7 @@ export default function BranchEntryPage() {
 
       {/* MONITORING SHEET MODAL */}
       {showMonitorModal && (
-        <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-md z-[100] flex items-end sm:items-center justify-center p-4">
+        <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-md z-100 flex items-end sm:items-center justify-center p-4">
           <div className="bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl w-full max-w-6xl max-h-[95vh] overflow-hidden flex flex-col border border-gray-200 animate-in slide-in-from-bottom duration-300">
             {/* Modal Header */}
             <div className="bg-white border-b border-gray-100 px-8 py-6 flex items-center justify-between shrink-0">
