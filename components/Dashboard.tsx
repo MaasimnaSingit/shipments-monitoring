@@ -572,9 +572,9 @@ export default function Dashboard() {
             </div>
 
             {/* 3. Stats & Action Buttons (Right) */}
-            <div className="flex flex-col xl:flex-row items-stretch xl:items-center gap-4 lg:gap-6 shrink-0">
+            <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-4 lg:gap-6 shrink-0">
                {/* Stats Pills - COMPACT FLAT */}
-               <div className="grid grid-cols-3 gap-2 w-full xl:w-auto">
+               <div className="grid grid-cols-3 gap-2 w-full lg:w-auto">
                   {[
                     { label: 'Total', val: stats.totalParcels, cls: 'text-blue-600 bg-blue-50/50' },
                     { label: 'VIP', val: stats.vipTotal, cls: 'text-purple-600 bg-purple-50/50' },
@@ -588,7 +588,7 @@ export default function Dashboard() {
                </div>
 
                {/* Actions */}
-               <div className="grid grid-cols-2 sm:flex items-center gap-2 w-full xl:w-auto">
+               <div className="grid grid-cols-2 sm:flex items-center gap-2 w-full lg:w-auto">
                   {/* Date Switcher */}
                   <div className="col-span-2 sm:col-span-1 flex items-center justify-between bg-gray-50 border border-gray-200 rounded-lg h-10 px-1 w-full">
                      <button onClick={goToPreviousMonth} className="px-2 hover:bg-white hover:text-red-600 rounded transition-colors text-gray-400" title="Previous Month"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7"></path></svg></button>
