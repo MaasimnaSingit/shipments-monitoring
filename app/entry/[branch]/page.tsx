@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Bell, X, Check, Info, AlertTriangle, Trash2, MailOpen } from 'lucide-react';
 import clsx from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { playNotificationSound } from '@/utils/audio';
+import { playNotificationSound, unlockAudioContext } from '@/utils/audio';
 
 interface VIPClient {
   code: string;
@@ -116,6 +116,27 @@ export default function BranchEntryPage() {
   useEffect(() => {
     loadMyEntries();
   }, [branchName]);
+
+  // Unlock Audio Context on first interaction (Mobile Support)
+  useEffect(() => {
+    const unlock = () => {
+      unlockAudioContext();
+      // Remove listeners once unlocked
+      document.removeEventListener('click', unlock);
+      document.removeEventListener('touchstart', unlock);
+      document.removeEventListener('keydown', unlock);
+    };
+
+    document.addEventListener('click', unlock);
+    document.addEventListener('touchstart', unlock);
+    document.addEventListener('keydown', unlock);
+
+    return () => {
+      document.removeEventListener('click', unlock);
+      document.removeEventListener('touchstart', unlock);
+      document.removeEventListener('keydown', unlock);
+    };
+  }, []);
 
   const lastKnownIds = useRef<Set<string>>(new Set());
 
