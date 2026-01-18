@@ -750,7 +750,7 @@ export default function Dashboard() {
             {!isWarehouse && (
               <table className="data-table">
                 {/* MAIN HEADER (Applies to all) */}
-                <thead className="sticky top-0 lg:top-[88px] z-40 bg-gray-50 shadow-sm">
+                <thead className="sticky top-0 z-40 bg-gray-50 shadow-sm">
                   <tr>
                     <th className="sticky left-0 bg-gray-50 z-40 shadow-sm w-40 py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">VIP Code</th>
                     <th className="min-w-[200px] py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">VIP Name</th>
