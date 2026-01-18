@@ -634,7 +634,7 @@ export default function Dashboard() {
       {/* Main Content */}
       <main className="max-w-[1900px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5">
         {/* BRANCH COMPARISON CHART */}
-        <BranchChart data={uploadedData} branches={branches} />
+        <BranchChart data={uploadedData} branches={branches} targets={targets} />
 
         {/* NEW WALKIN SECTION */}
         {walkinRow && (

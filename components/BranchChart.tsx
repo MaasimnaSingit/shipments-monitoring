@@ -13,9 +13,10 @@ type DailyRecord = {
 type BranchChartProps = {
   data: DailyRecord[];
   branches: { name: string }[];
+  targets: { [key: string]: number };
 };
 
-export default function BranchChart({ data, branches }: BranchChartProps) {
+export default function BranchChart({ data, branches, targets }: BranchChartProps) {
   // Calculate stats per branch
   const branchStats = useMemo(() => {
     return branches.map(branch => {
@@ -64,6 +65,9 @@ export default function BranchChart({ data, branches }: BranchChartProps) {
         {branchStats.map((branch) => {
           const vipPercentage = branch.total > 0 ? (branch.vipTotal / branch.total) * 100 : 0;
           const walkinPercentage = branch.total > 0 ? (branch.walkinTotal / branch.total) * 100 : 0;
+          const branchTarget = targets[branch.name] || 0;
+          const targetPercentage = branchTarget > 0 ? Math.min((branch.total / branchTarget) * 100, 100) : 0;
+          const isOverTarget = branch.total >= branchTarget && branchTarget > 0;
           
           return (
             <div 
@@ -121,6 +125,26 @@ export default function BranchChart({ data, branches }: BranchChartProps) {
                           style={{ width: `${walkinPercentage}%` }}
                         ></div>
                       </div>
+                    </div>
+                  )}
+                  {/* Monthly Target Progress */}
+                  {branchTarget > 0 && (
+                    <div className="mt-2 pt-2 border-t border-gray-100">
+                      <div className="flex items-center justify-between mb-0.5">
+                        <span className="text-[9px] font-bold text-red-600 uppercase">Target</span>
+                        <span className={`text-[9px] font-black ${isOverTarget ? 'text-green-600' : 'text-gray-700'}`}>
+                          {targetPercentage.toFixed(0)}%
+                        </span>
+                      </div>
+                      <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full rounded-full transition-all duration-300 ${isOverTarget ? 'bg-gradient-to-r from-green-500 to-green-600' : 'bg-gradient-to-r from-red-500 to-red-600'}`}
+                          style={{ width: `${targetPercentage}%` }}
+                        ></div>
+                      </div>
+                      <p className="text-[8px] text-gray-400 mt-0.5 text-right">
+                        {branch.total.toLocaleString()} / {branchTarget.toLocaleString()}
+                      </p>
                     </div>
                   )}
                 </div>
