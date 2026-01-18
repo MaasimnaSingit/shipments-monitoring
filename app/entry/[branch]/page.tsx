@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Bell, X, Check, Info, AlertTriangle, Trash2, MailOpen } from 'lucide-react';
 import clsx from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { playNotificationSound } from '@/utils/audio';
 
 interface VIPClient {
   code: string;
