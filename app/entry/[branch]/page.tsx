@@ -285,7 +285,15 @@ export default function BranchEntryPage() {
   
   // Determine Header Label (Branch vs Warehouse)
   const displayBranchName = resolvedBranchName || branchName.replace(/-/g, ' ');
-  const isWarehouse = ['WAREHOUSE', 'PANDAN'].some(w => displayBranchName.toUpperCase().includes(w));
+  
+  // User confirmed only 4 Branches: MAGALANG, FLORIDA, STO CRISTO, LUBAO.
+  // The rest are WAREHOUSES: PAMPANG, PANDAN, SAPALIBUTAD, SAN JOSE, CONCEPCION, CITY CENTER.
+  const knownWarehouses = [
+    'WAREHOUSE', 'PANDAN', 'PAMPANG', 'SAPALIBUTAD', 
+    'SAN JOSE', 'CONCEPCION', 'CITY CENTER'
+  ];
+  
+  const isWarehouse = knownWarehouses.some(w => displayBranchName.toUpperCase().includes(w));
   const entityLabel = isWarehouse ? 'WAREHOUSE' : 'BRANCH';
 
   return (
