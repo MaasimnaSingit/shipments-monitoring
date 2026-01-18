@@ -494,12 +494,12 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header - CLEAN WHITE MINIMALIST */}
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm text-gray-900">
-        <div className="max-w-[1900px] mx-auto px-8 py-4">
-          <div className="flex items-center gap-8 luxury-row">
+      <header className="relative lg:sticky lg:top-0 z-50 bg-white border-b border-gray-200 shadow-sm text-gray-900">
+        <div className="max-w-[1900px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-4 lg:gap-8 luxury-row">
             
             {/* 1. Logo & Title */}
-            <div className="flex items-center gap-4 shrink-0">
+            <div className="flex items-center justify-center sm:justify-start gap-4 shrink-0">
               <div className="w-14 h-14 bg-white rounded-lg flex items-center justify-center overflow-hidden border border-gray-200">
                  <img src="/logo.png" alt="DskLab Logo" className="w-full h-full object-contain p-1.5" />
               </div>
@@ -509,7 +509,7 @@ export default function Dashboard() {
             </div>
 
             {/* 2. Branch & Target Area (Flexible) */}
-            <div className="flex flex-1 items-center gap-6 min-w-0">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 lg:gap-6 min-w-0">
                {/* Branch Selector */}
                <div className="relative z-50 shrink-0">
                    <button 
@@ -540,7 +540,7 @@ export default function Dashboard() {
                </div>
 
                {/* Target Progress Card */}
-               <div className="flex-1 max-w-sm overflow-hidden min-w-[150px]">
+               <div className="flex-1 w-full sm:w-auto sm:max-w-sm overflow-hidden min-w-[150px]">
                   <div className="flex items-center justify-between mb-1">
                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Monthly Target</span>
                      <div className="flex items-center gap-2">
@@ -572,9 +572,9 @@ export default function Dashboard() {
             </div>
 
             {/* 3. Stats & Action Buttons (Right) */}
-            <div className="flex items-center gap-6 shrink-0">
+            <div className="flex flex-col xl:flex-row items-stretch xl:items-center gap-4 lg:gap-6 shrink-0">
                {/* Stats Pills - COMPACT FLAT */}
-               <div className="flex items-center gap-2">
+               <div className="grid grid-cols-3 gap-2 w-full xl:w-auto">
                   {[
                     { label: 'Total', val: stats.totalParcels, cls: 'text-blue-600 bg-blue-50/50' },
                     { label: 'VIP', val: stats.vipTotal, cls: 'text-purple-600 bg-purple-50/50' },
@@ -588,9 +588,9 @@ export default function Dashboard() {
                </div>
 
                {/* Actions */}
-               <div className="flex items-center gap-2">
+               <div className="grid grid-cols-2 sm:flex items-center gap-2 w-full xl:w-auto">
                   {/* Date Switcher */}
-                  <div className="flex items-center bg-gray-50 border border-gray-200 rounded-lg h-10 px-1">
+                  <div className="col-span-2 sm:col-span-1 flex items-center justify-between bg-gray-50 border border-gray-200 rounded-lg h-10 px-1 w-full">
                      <button onClick={goToPreviousMonth} className="px-2 hover:bg-white hover:text-red-600 rounded transition-colors text-gray-400" title="Previous Month"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7"></path></svg></button>
                      <span className="px-3 text-xs font-black text-gray-700 uppercase">{monthName}</span>
                      <button onClick={goToNextMonth} disabled={isCurrentMonth} className="px-2 hover:bg-white hover:text-red-600 rounded transition-colors text-gray-400 disabled:opacity-20" title="Next Month"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7"></path></svg></button>
@@ -598,7 +598,7 @@ export default function Dashboard() {
 
                   <button 
                     onClick={() => setShowQuickEntry(true)} 
-                    className="h-10 px-4 bg-red-600 hover:bg-red-700 text-white text-xs font-black uppercase rounded-lg shadow-sm transition-colors flex items-center gap-2"
+                    className="col-span-2 sm:col-auto h-10 px-4 bg-red-600 hover:bg-red-700 text-white text-xs font-black uppercase rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4"></path></svg>
                     <span>Quick Add</span>
@@ -632,7 +632,7 @@ export default function Dashboard() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-[1900px] mx-auto px-8 py-6 space-y-5">
+      <main className="max-w-[1900px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5">
         {/* BRANCH COMPARISON CHART */}
         <BranchChart data={uploadedData} branches={branches} />
 
@@ -750,7 +750,7 @@ export default function Dashboard() {
             {!isWarehouse && (
               <table className="data-table">
                 {/* MAIN HEADER (Applies to all) */}
-                <thead className="sticky top-0 z-40 bg-gray-50 shadow-sm">
+                <thead className="sticky top-0 lg:top-[88px] z-40 bg-gray-50 shadow-sm">
                   <tr>
                     <th className="sticky left-0 bg-gray-50 z-40 shadow-sm w-40 py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">VIP Code</th>
                     <th className="min-w-[200px] py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">VIP Name</th>
