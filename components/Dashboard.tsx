@@ -496,7 +496,7 @@ export default function Dashboard() {
       {/* Header - CLEAN WHITE MINIMALIST */}
       <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm text-gray-900">
         <div className="max-w-[1900px] mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <div className="flex items-center gap-4 md:gap-8 luxury-row overflow-x-auto">
+          <div className="flex items-center gap-4 md:gap-8 luxury-row">
             
             {/* 1. Logo & Title */}
             <div className="flex items-center gap-3 md:gap-4 shrink-0">
